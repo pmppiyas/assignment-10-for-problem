@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 var uri = `mongodb://${process.env.USER}:${process.env.PASS}@cluster0-shard-00-00.fk8o9.mongodb.net:27017,cluster0-shard-00-01.fk8o9.mongodb.net:27017,cluster0-shard-00-02.fk8o9.mongodb.net:27017/?ssl=true&replicaSet=atlas-hwpwcj-shard-0&authSource=admin&retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -42,11 +42,19 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+
     app.get('/myCampaign/:email', async (req, res) => {
       const email = req.params.email;
       console.log(email);
       const cursor = campCollection.find({ userEmail: email });
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.delete('/myCampaign/:email/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await campCollection.deleteOne(query);
       res.send(result);
     });
     console.log(
