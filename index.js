@@ -42,10 +42,14 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
-
+    app.get('/campaigns/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await campCollection.findOne(query);
+      res.send(result);
+    });
     app.get('/myCampaign/:email', async (req, res) => {
       const email = req.params.email;
-      console.log(email);
       const cursor = campCollection.find({ userEmail: email });
       const result = await cursor.toArray();
       res.send(result);
@@ -55,6 +59,29 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await campCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.patch('/updateCampaign/:id', async (req, res) => {
+      const id = req.params.id;
+      const updateCamp = req.body;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: false };
+      const updateDocument = {
+        $set: {
+          title: updateCamp.title,
+          type: updateCamp.type,
+          description: updateCamp.description,
+          minDonation: updateCamp.minDonation,
+          deadline: updateCamp.deadline,
+          photoURL: updateCamp.photoURL,
+        },
+      };
+      const result = await campCollection.updateOne(
+        query,
+        updateDocument,
+        options
+      );
       res.send(result);
     });
     console.log(
