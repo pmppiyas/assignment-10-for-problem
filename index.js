@@ -74,14 +74,21 @@ async function run() {
       res.status(200).send(result);
     });
 
-    // Get Running Campaigns
-    app.get('/runnigCamps', async (req, res) => {
+    /// Get Running Campaigns
+    app.get('/runningCamps', async (req, res) => {
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // Reset to midnight
+      today.setHours(0, 0, 0, 0);
       const query = { deadline: { $gte: today } };
-      const runningCamps = await campCollection.find(query).limit(6).toArray();
-      console.log('Running Campaigns:', runningCamps);
-      res.status(200).send(runningCamps);
+      try {
+        const runningCamps = await campCollection
+          .find(query)
+          .limit(6)
+          .toArray();
+        console.log('Running Campaigns:', runningCamps);
+        res.status(200).send(runningCamps);
+      } catch (error) {
+        res.status(500).send({ message: 'Error fetching running campaigns' });
+      }
     });
 
     // Delete Campaign
@@ -103,7 +110,7 @@ async function run() {
           type: updateCamp.type,
           description: updateCamp.description,
           minDonation: updateCamp.minDonation,
-          deadline: new Date(updateCamp.deadline), // Ensure proper Date conversion
+          deadline: new Date(updateCamp.deadline),
           photoURL: updateCamp.photoURL,
         },
       };
